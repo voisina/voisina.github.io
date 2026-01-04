@@ -68,7 +68,7 @@ $ cat artifacts.txt
  
 # File Information
 # --------------------------------------------------
-# Path: /home/kali/Desktop/mispygris/malware_repo/wannacry.exe
+# Path: /home/linux/mispygris/malware_repo/malicious.exe
 # 
 # File Hashes
 # --------------------------------------------------
@@ -158,5 +158,24 @@ First, we find the hashes of the binary. You can use one of these hashes to find
 
 
 For the “query” mode, the artifact file is read and for each non-commented line, the misp.search() function of the pymisp module is used to perform a search through the MISP API on the attributes. 
+In order to query the API, you will need to specify the address of the MISP instance, the API key generated for a user, and a certificate that ensures the encryption of the request to the server. Here is an example of a request that will be sent from the previously generated file:
+
+```bash
+ python3 mispygris.py -m query --misp-url https://misp.local --misp-key KEY --misp-cert cert.crt 
+
+db349b97c37d22f5ea1d1841e3c89eb4 622 OSINT -  Player 3 Has Entered the Game: Say Hello to 'WannaCry'
+e889544aff85ffaf8b0d0da705105dee7c97fe26 622 OSINT -  Player 3 Has Entered the Game: Say Hello to 'WannaCry'
+24d004a104d4d54034dbcffc2a4b19a11f39008a575aa614ea04703480b1022c 620 Ransomware spreading through SMB attacking multiple companies
+launcher.dll 1262 Buzzing in the Background: BumbleBee, a New Modular Backdoor Evolved From BookWorm
+launcher.dll 1262 Buzzing in the Background: BumbleBee, a New Modular Backdoor Evolved From BookWorm
+tasksche.exe 623 OSINT - Alert (TA17-132A) Indicators Associated With WannaCry Ransomware
+cmd.exe 1048 VMRay Analyzer Report for Sample #252574 (related amf-fr.org)
+tasksche.exe 623 OSINT - Alert (TA17-132A) Indicators Associated With WannaCry Ransomware
+```
+
+Our research has identified Wannacry using various attributes. The hash was found, as well as the name of one of the binaries extracted from the malware. Other .dll and .exe files were also identified, but these were false positives. However, correlating the results confirms that this is indeed a version similar to Wannacry. It should be noted that only one MISP feed was synchronized in our instance in order to perform our test, namely the default OSINT feed from CIRCL (https://www.circl.lu/doc/misp/feed-osint). 
+
+### Limitations and discussion
+
 
 
