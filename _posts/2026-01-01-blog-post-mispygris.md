@@ -54,16 +54,109 @@ options:
 
 ```
 
-### misPygris Architecture
+### misPYgris Architecture
 
-```mermaid
-flowchart TD
-    A[misPYgris] -->|populate| B(artifacts.txt)
-    A[misPYgris] --> |query| C(MISP)
+The architecture of misPYgris is very simple. It consists of the script itself, a file in which the various indicators extracted from a binary are saved, and a MISP instance accessible via its API. There are two modes of operation. A “populate” mode in which indicators are extracted from the binary and saved in the artifacts file. A second “query” mode in which the indicators are read from the artifacts file and used for searching through the MISP API.
+
+For the “populate” mode, misPYgris works in two stages. First, it extracts the metadata from the file passed as an argument. To do this, it uses the pefile () module to retrieve all the sections, their names, sizes, and entropy. It also calculates the file hash for three algorithms. It then writes all this information to a file called “artifacts.txt” by default . For the second phase, it uses a list of regexes defined in the “config.py” file to match all the character strings extracted from the binary file (similar to the “strings” command). Each string for which a match is found is also written to the artifact file. 
+
+Here is an example for a binary file corresponding to Wannacry malware :
+```bash
+$ python3 mispygris.py -m populate -f malicious.exe
+$ cat artifacts.txt
+
+ 
+# File Information
+# --------------------------------------------------
+# Path: /home/kali/Desktop/mispygris/malware_repo/wannacry.exe
+# 
+# File Hashes
+# --------------------------------------------------
+# MD5     : db349b97c37d22f5ea1d1841e3c89eb4
+# SHA1    : e889544aff85ffaf8b0d0da705105dee7c97fe26
+# SHA256  : 24d004a104d4d54034dbcffc2a4b19a11f39008a575aa614ea04703480b1022c
+# 
+# PE Sections
+# --------------------------------------------------
+# Section Name : .text
+#   Suspicious Section Name : false
+#   Unusual Section Name : false
+#   Entropy     : 6.1346
+#   Suspicious Entropy : false
+#   Raw Size    : 36864
+#   Virtual Size: 35786
+# 
+# Section Name : .rdata
+#   Suspicious Section Name : false
+#   Unusual Section Name : false
+#   Entropy     : 3.5036
+#   Suspicious Entropy : false
+#   Raw Size    : 4096
+#   Virtual Size: 2456
+# 
+# Section Name : .data
+#   Suspicious Section Name : false
+#   Unusual Section Name : false
+#   Entropy     : 6.1003
+#   Suspicious Entropy : false
+#   Raw Size    : 159744
+#   Virtual Size: 3164316
+# 
+# Section Name : .rsrc
+#   Suspicious Section Name : false
+#   Unusual Section Name : false
+#   Entropy     : 7.9952
+#   Suspicious Entropy : true
+#   Raw Size    : 3518464
+#   Virtual Size: 3515476
+# 
+md5:db349b97c37d22f5ea1d1841e3c89eb4
+sha1:e889544aff85ffaf8b0d0da705105dee7c97fe26
+sha256:24d004a104d4d54034dbcffc2a4b19a11f39008a575aa614ea04703480b1022c
+binary_file:KERNEL32.dll
+binary_file:ADVAPI32.dll
+binary_file:WS2_32.dll
+binary_file:MSVCP60.dll
+binary_file:iphlpapi.dll
+binary_file:WININET.dll
+binary_file:MSVCRT.dll
+binary_file:KERNEL32.dll
+binary_file:MSVCRT.dll
+binary_file:launcher.dll
+binary_file:mssecsvc.exe
+binary_file:mssecsvc.exe
+binary_file:KERNEL32.dll
+binary_file:launcher.dll
+binary_file:msvcrt.dll
+binary_file:msvcrtd.dll
+binary_file:msvcrt.dll
+binary_file:msvcrtd.dll
+binary_file:tasksche.exe
+domain:http://www.iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com
+mutex:OpenMutexA
+binary_file:KERNEL32.dll
+binary_file:USER32.dll
+binary_file:ADVAPI32.dll
+binary_file:SHELL32.dll
+binary_file:OLEAUT32.dll
+binary_file:WS2_32.dll
+binary_file:MSVCRT.dll
+binary_file:MSVCP60.dll
+binary_file:advapi32.dll
+binary_file:kernel32.dll
+binary_file:cmd.exe
+mutex:Global\MsWinZonesCacheCounterMutexA
+binary_file:tasksche.exe
+binary_file:taskdl.exe
+binary_file:taskdl.exe
+binary_file:taskse.exe
+ip:6.0.0.0
+
 ```
-### Populate an artifact file from a binary 
+
+First, we find the hashes of the binary. You can use one of these hashes to find the binary file used in this example. Information about the different sections in the binary file is also displayed (assuming it is a PE file). This information will not be used to query the MISP API, but it does allow the analyst to determine whether packing or encryption is suspected, as is the case with Wannacry, or whether the resource section contains an encrypted part of the malware. Next, in the format [indicator_type:value], we find the list of strings that have been matched by one of the regexes. In our example, there is a set of .dll files taken from the import list, as well as other binary files with the .exe extension. The URL used by Wannacry as a “killswitch” is also present. An IP address was also found, but this is a false positive. 
 
 
-
+For the “query” mode, the artifact file is read and for each non-commented line, the misp.search() function of the pymisp module is used to perform a search through the MISP API on the attributes. 
 
 
