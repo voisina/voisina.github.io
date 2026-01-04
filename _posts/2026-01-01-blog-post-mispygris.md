@@ -175,7 +175,15 @@ tasksche.exe 623 OSINT - Alert (TA17-132A) Indicators Associated With WannaCry R
 
 Our research has identified Wannacry using various attributes. The hash was found, as well as the name of one of the binaries extracted from the malware. Other .dll and .exe files were also identified, but these were false positives. However, correlating the results confirms that this is indeed a version similar to Wannacry. It should be noted that only one MISP feed was synchronized in our instance in order to perform our test, namely the default OSINT feed from CIRCL (https://www.circl.lu/doc/misp/feed-osint). 
 
+The main reason for splitting misPYgris's operation into two modes is that MISP is not strictly speaking a malware analysis platform but is “event”-oriented. MISP allows security incidents to be encoded as events. These events are then defined by a set of attributes. By decoupling the extraction of indicators from the binary  from requests to MISP, analysts will be able to enrich the artifacts file with elements of an incident that are not contained in the file, such as the email address linked to a phishing attempt prior to the use of malware. 
+
 ### Limitations and discussion
 
+misPYgris has the same limitations as a tool such as “strings” when attempting to extract interesting elements from a binary file. It is sometimes difficult to distinguish real character strings from binary portions falsely identified as such. Regexes can be used to avoid these false positives, but this carries the risk of missing artifacts that are useful for analyzing malware. However, the biggest limitation of our system is that malware that uses obfuscation, packing, or encryption makes analysis much less effective. Future developments of misPYgris could take these techniques into account in order to potentially circumvent them. 
 
+Furthermore, the definition of regexes is essential for the proper functioning of our application. However, only an in-depth study of a large number of malware samples will allow us to identify which artifacts are truly interesting for triage. 
+
+Secondly, the current version of misPYgris uses a very limited portion of the MISP API's functionality. If our tool proves useful, it would be interesting to optimize the calls in order to make them more efficient and improve search performance. In addition, only the PE format is currently supported for metadata extraction. It would obviously be useful to integrate ELF file management. Finally, the quality of the code could be improved, as the focus of this first version is mainly a “proof of concept” to show the value of integrating MISP into a local triage of suspicious binaries. 
+
+However, our initial tests show that it is possible to identify the nature of certain malware using a collaborative platform, without making our samples public, while using open-source tools that can be adapted to the needs and contexts of analysts. 
 
