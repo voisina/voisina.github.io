@@ -9,6 +9,50 @@ Furthermore, the binary itself may contain critical information if it uses priva
 MISP is a platform that aims to share information about attacks (events) that have already been carried out using a community sharing system (https://www.misp-project.org/). For example, it is possible to set up a local MISP instance using certain databases that are relevant to your context. 
 From there, you can search based on an attribute (email, IP address, hash, etc.) to check if there are any occurrences similar to the incident you are experiencing. MISP also offers an API and its integration in Python to enable interactions with other applications (https://github.com/MISP/PyMISP). 
 
-The objective of the MISPYGRIS project is to perform an initial traige by extracting metadata from a suspicious binary file (such as the file hash, the names of the PE sections, their size, and their entropy level), but also to use the printable character strings contained in the binary to populate an artifact file that would then be used to perform searches in a local instance of MISP. 
+The objective of the MISPYGRIS project is to perform an initial triage by extracting metadata from a suspicious binary file (such as the file hash, the names of the PE sections, their size, and their entropy level), but also to use the printable character strings contained in the binary to populate an artifact file that would then be used to perform searches in a local instance of MISP. 
+
+In this article, I will briefly present the features and how works MISPYGRIS, highlighting its strengths and limitations.
+
+### Installation
+
+MISPYGRIS is a Python3 application that requires two dependencies: pymisp and pefile. 
+
+```bash
+git clone https://github.com/voisina/mispygris.git
+cd mispygris
+python3 -m venv venv && . venv/bin/activate
+pip install pymisp pefile
+```
+
+Once installed, you can test its functionality by displaying the help section:
+
+```bash
+python3 mispygris.py -h                    
+usage: mispygris.py [-h] [-f FILE] -m {populate,query} [-n MIN_LENGTH] [--misp-url MISP_URL] [--misp-key MISP_KEY] [--misp-cert MISP_CERT] [--ioc-file IOC_FILE]
+
+Extract printable strings from binary files and interact with a MISP instance.
+
+options:
+  -h, --help            show this help message and exit
+  -f, --file FILE       Path to a binary file
+  -m, --mode {populate,query}
+                        populate: store artifacts, query: check on MISP instance
+  -n, --min-length MIN_LENGTH
+                        Minimum string length (default: 4)
+  --misp-url MISP_URL   MISP instance URL
+  --misp-key MISP_KEY   MISP API key
+  --misp-cert MISP_CERT
+                        SSL certificate
+  --ioc-file IOC_FILE   IOC input file for query mode (default: artifacts.txt)
+
+    Examples:
+      Extract strings from a single file and populate MISP:
+       mispygris.py -f sample.bin -m populate
+
+      Read IOC from a file and query MISP:
+       mispygris.py -m query --misp-url https://misp.local --misp-key ABC123 --misp-cert cert.crt
+
+```
+
 
 
