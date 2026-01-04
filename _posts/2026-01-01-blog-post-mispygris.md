@@ -57,9 +57,10 @@ options:
 ### misPygris Architecture
 
 ```mermaid
-flowchart LR
-    misPYgris -->|populate with IOC| artifacts_txt[artifacts.txt]
-
+flowchart TD
+    A[misPYgris] -->|populate| B(artifacts.txt)
+    A[misPYgris] --> |query| C(MISP)
+```
 ### Populate an artifact file from a binary 
 
 
