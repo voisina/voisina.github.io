@@ -54,5 +54,15 @@ options:
 
 ```
 
+### misPygris Architecture
+
+```mermaid
+flowchart LR
+    misPYgris -->|populate with IOC| artifacts_txt[artifacts.txt]
+
+### Populate an artifact file from a binary 
+
+
+
 
 
